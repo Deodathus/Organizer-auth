@@ -13,7 +13,7 @@ services:
       MYSQL_USER: ${MYSQL_DATABASE_USER}
       MYSQL_PASSWORD: ${MYSQL_DATABASE_USER_PASSWORD}
     ports:
-      - '4306:3306'
+      - '4406:3306'
     volumes:
       - ./mysql:/var/lib/mysql
   python:
