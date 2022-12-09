@@ -1,0 +1,6 @@
+.idea/
+.env
+mysql/
+lib/
+__pycache__/
+bin/

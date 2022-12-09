@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db:
+    platform: linux/x86_64
+    container_name: organizer-auth-db
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_NAME}
+      MYSQL_USER: ${MYSQL_DATABASE_USER}
+      MYSQL_PASSWORD: ${MYSQL_DATABASE_USER_PASSWORD}
+    ports:
+      - '4306:3306'
+    volumes:
+      - ./mysql:/var/lib/mysql
+  python:
+    container_name: organizer-auth
+    build:
+      context: .
+    ports:
+      - '8000:80'
+    volumes:
+      - ./:/auth
+    depends_on:
+      - db
