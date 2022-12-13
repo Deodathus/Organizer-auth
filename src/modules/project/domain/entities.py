@@ -27,10 +27,9 @@ class Project(object):
     _owner: ProjectOwnerId
     _created_at: datetime.datetime
 
-    def __init__(self, project_id: ProjectId, name: str, owner: ProjectOwnerId):
+    def __init__(self, project_id: ProjectId, name: str):
         self._id = project_id
         self._name = name
-        self._owner = owner
 
     def __str__(self) -> str:
         return str({

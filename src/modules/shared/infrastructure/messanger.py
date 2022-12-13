@@ -6,11 +6,11 @@ from src.modules.shared.application.messanger import Query, Command, QueryHandle
 class CommandBus(CommandBusInterface):
     handlers = {}
 
-    def add(self, command: str, handler: str) -> None:
-        self.handlers[command] = handler
+    def __init__(self, handlers: dict):
+        self.handlers = handlers
 
     def handle(self, command: Command):
-        self.handlers.get(command).handle()
+        self.handlers[command.__class__].handle(command)
 
 
 class QueryBus(QueryBusInterface):
@@ -18,9 +18,6 @@ class QueryBus(QueryBusInterface):
 
     def __init__(self, handlers: dict):
         self.handlers = handlers
-
-    def add(self, query: Query, handler: QueryHandler) -> None:
-        self.handlers[query] = handler
 
     def handle(self, query: Query):
         return self.handlers[query.__class__].handle(query)
