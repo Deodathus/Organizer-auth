@@ -1,13 +1,14 @@
 
 from .dtos import ProjectsCollection
 from src.modules.project.domain.repositories import ProjectRepository
+from src.modules.shared.application.messanger import Query, QueryHandler
 
 
-class GetAllProjects(object):
+class GetAllProjects(Query):
     pass
 
 
-class GetAllProjectsQueryHandler(object):
+class GetAllProjectsQueryHandler(QueryHandler):
     def __init__(self, project_repository: ProjectRepository):
         self._project_repository = project_repository
 

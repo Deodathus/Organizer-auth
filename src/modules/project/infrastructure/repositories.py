@@ -1,5 +1,4 @@
 
-import uuid
 from sqlalchemy import create_engine, text
 from src.modules.project.domain.repositories import ProjectRepository, ProjectOwnerRepository
 from src.modules.project.domain.value_objects import ProjectId, ProjectOwnerId
@@ -10,7 +9,7 @@ connection = engine.connect()
 
 
 class MysqlProjectRepository(ProjectRepository):
-    """User repository implementation"""
+    """Project repository implementation"""
     def get_all(self):
         raw_result = connection.execute(text('select * from projects'))
         result = []
@@ -21,6 +20,6 @@ class MysqlProjectRepository(ProjectRepository):
             poi = ProjectOwnerId.from_string(row[0])
 
             project = Project(pi, pn, poi)
-            print(project)
+            result.append(project)
 
         return result
