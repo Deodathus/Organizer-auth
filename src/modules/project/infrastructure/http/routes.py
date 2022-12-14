@@ -1,12 +1,11 @@
 
 from fastapi import APIRouter, status, Depends
 from dependency_injector.wiring import inject, Provide
-from .requests import CreateProjectRequest
+from .requests import CreateProjectRequest, UpdateProjectRequest
 from src.modules.project.application.queries import GetAllProjects
-from src.modules.project.application.commands import StoreProject
+from src.modules.project.application.commands import StoreProject, DeleteProject, UpdateProject
 from container import ApplicationContainer
 from src.modules.shared.application.messanger import QueryBus, CommandBus
-from src.modules.project.application.dtos import ProjectDTO
 
 router = APIRouter()
 
@@ -39,4 +38,41 @@ def store_project(
     return {
         "message": None,
         "code": status.HTTP_201_CREATED
+    }
+
+
+@router.delete('/project/{project_id}', status_code=status.HTTP_204_NO_CONTENT)
+@inject
+def delete_project(
+        project_id: str,
+        command_bus: CommandBus = Depends(
+            Provide[ApplicationContainer.project.command_bus]
+        )
+) -> dict:
+    command_bus.handle(
+        DeleteProject(project_id)
+    )
+
+    return {
+        "message": None,
+        "code": status.HTTP_204_NO_CONTENT
+    }
+
+
+@router.patch('/project/{project_id}', status_code=status.HTTP_204_NO_CONTENT)
+@inject
+def update_project(
+        project_id: str,
+        request: UpdateProjectRequest,
+        command_bus: CommandBus = Depends(
+            Provide[ApplicationContainer.project.command_bus]
+        )
+) -> dict:
+    command_bus.handle(
+        UpdateProject(project_id, request.name)
+    )
+
+    return {
+        "message": None,
+        "code": status.HTTP_204_NO_CONTENT
     }

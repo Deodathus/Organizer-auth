@@ -10,7 +10,7 @@ class ID(object):
         self.value = value
 
     @staticmethod
-    def from_string(string_id: str) -> ID:
+    def from_string(string_id: str):
         return ID(uuid.UUID(string_id))
 
     @staticmethod
