@@ -12,9 +12,9 @@ connection = engine.connect()
 
 
 class MysqlProjectRepository(ProjectRepository):
+    """Project repository implementation"""
     _TABLE_NAME = 'projects'
 
-    """Project repository implementation"""
     def get_all(self) -> array:
         raw_result = connection.execute(
             text(

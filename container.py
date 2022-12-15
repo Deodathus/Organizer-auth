@@ -1,6 +1,7 @@
 
 from dependency_injector import containers, providers
 from src.modules.project.infrastructure.containers import ProjectContainer
+from src.modules.auth.infrastructure.containers import AuthContainer
 
 
 class ApplicationContainer(containers.DeclarativeContainer):
@@ -13,4 +14,8 @@ class ApplicationContainer(containers.DeclarativeContainer):
 
     project = providers.Container(
         ProjectContainer
+    )
+
+    auth = providers.Container(
+        AuthContainer
     )
