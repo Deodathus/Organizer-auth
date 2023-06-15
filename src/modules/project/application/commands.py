@@ -1,5 +1,5 @@
 
-from src.modules.shared.application.messanger import Command, CommandHandler
+from src.modules.shared.application.messenger import Command, CommandHandler
 from src.modules.project.domain.repositories import ProjectRepository
 from src.modules.project.domain.entities import Project
 from src.modules.project.domain.value_objects import ProjectId

@@ -1,5 +1,5 @@
 
-from src.modules.shared.application.messanger import Command, CommandHandler
+from src.modules.shared.application.messenger import Command, CommandHandler
 from src.modules.auth.application.dtos import CreateUser
 from src.modules.auth.application.services import PasswordHasher
 from src.modules.auth.domain.repositories import UserRepository

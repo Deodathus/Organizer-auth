@@ -4,7 +4,7 @@ from src.modules.project.infrastructure.repositories import MysqlProjectReposito
 from src.modules.project.application.queries import GetAllProjectsQueryHandler, GetAllProjects
 from src.modules.project.application.commands import StoreProjectCommandHandler, StoreProject, \
     DeleteProjectCommandHandler, DeleteProject, UpdateProjectCommandHandler, UpdateProject
-from src.modules.shared.infrastructure.messanger import QueryBus, CommandBus
+from src.modules.shared.infrastructure.messenger import QueryBus, CommandBus
 
 
 class ProjectContainer(containers.DeclarativeContainer):

@@ -1,7 +1,7 @@
 
 from .dtos import ProjectsCollection
 from src.modules.project.domain.repositories import ProjectRepository
-from src.modules.shared.application.messanger import Query, QueryHandler
+from src.modules.shared.application.messenger import Query, QueryHandler
 
 
 class GetAllProjects(Query):

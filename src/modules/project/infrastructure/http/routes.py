@@ -5,7 +5,7 @@ from .requests import CreateProjectRequest, UpdateProjectRequest
 from src.modules.project.application.queries import GetAllProjects
 from src.modules.project.application.commands import StoreProject, DeleteProject, UpdateProject
 from container import ApplicationContainer
-from src.modules.shared.application.messanger import QueryBus, CommandBus
+from src.modules.shared.application.messenger import QueryBus, CommandBus
 
 router = APIRouter()
 

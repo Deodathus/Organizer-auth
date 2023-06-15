@@ -3,7 +3,7 @@ from dependency_injector import containers, providers
 from src.modules.auth.application.services import PasswordHasher
 from src.modules.auth.application.commands import RegisterUser, RegisterUserCommandHandler
 from src.modules.auth.infrastructure.repositories import MysqlUserRepository
-from src.modules.shared.infrastructure.messanger import QueryBus, CommandBus
+from src.modules.shared.infrastructure.messenger import QueryBus, CommandBus
 
 
 class AuthContainer(containers.DeclarativeContainer):

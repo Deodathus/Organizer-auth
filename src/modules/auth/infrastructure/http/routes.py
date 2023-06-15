@@ -3,7 +3,7 @@ from fastapi import APIRouter, status, Depends
 from dependency_injector.wiring import inject, Provide
 from container import ApplicationContainer
 from .models import AuthModel, RegisterModel
-from src.modules.shared.application.messanger import CommandBus
+from src.modules.shared.application.messenger import CommandBus
 from src.modules.auth.application.commands import RegisterUser
 from src.modules.auth.application.dtos import CreateUser
 
