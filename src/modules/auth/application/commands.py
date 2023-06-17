@@ -1,6 +1,6 @@
 
 from src.modules.shared.application.messenger import Command, CommandHandler
-from src.modules.auth.application.dtos import CreateUser
+from src.modules.auth.application.dtos import CreateUser, UserToLogin, LoggedUser
 from src.modules.auth.application.services import PasswordHasher
 from src.modules.auth.domain.repositories import UserRepository
 from src.modules.auth.domain.entities import User
@@ -30,3 +30,18 @@ class RegisterUserCommandHandler(CommandHandler):
                 Password(password['hashed'], password['salt'])
             )
         )
+
+
+class LoginUser(Command):
+    def __init__(self, user: UserToLogin):
+        self._user = user
+
+    def get_user(self) -> UserToLogin:
+        return self._user
+
+
+class LoginUserCommandHandler(CommandHandler):
+    def __init__(self, user_repository: UserRepository, password_hasher: PasswordHasher):
+        self._user_repository = user_repository
+        self._password_hasher = password_hasher
+
