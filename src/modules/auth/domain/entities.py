@@ -1,16 +1,16 @@
 
 from __future__ import annotations
-from src.modules.auth.domain.value_objects import UserId, Email, Password, UserStatus
+from src.modules.auth.domain.value_objects import UserId, Email, Password, UserStatus, Login
 
 
 class User(object):
     _user_id: UserId
-    _login: str
+    _login: Login
     _email: Email
     _password: Password
     _status: UserStatus
 
-    def __init__(self, user_id: UserId, login: str, email: Email, password: Password, status: UserStatus):
+    def __init__(self, user_id: UserId, login: Login, email: Email, password: Password, status: UserStatus):
         self._user_id = user_id
         self._login = login
         self._email = email
@@ -18,7 +18,7 @@ class User(object):
         self._status = status
 
     @staticmethod
-    def register(login: str, email: Email, password: Password) -> User:
+    def register(login: Login, email: Email, password: Password) -> User:
         return User(
             UserId.generate(),
             login,

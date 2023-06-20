@@ -19,6 +19,14 @@ class PasswordHasher(object):
             'salt': salt
         }
 
+    def hash_with_salt(self, raw_password: str, salt: str):
+        password = bytes(raw_password, self._encoding)
+        hashed = bcrypt.hashpw(password, bytes(salt, self._encoding))
+
+        return {
+            'hashed': hashed,
+        }
+
 
 class TokenCreator(object):
     def create(self, user_id: UserId, password: Password) -> Token:

@@ -4,7 +4,7 @@ from src.modules.auth.application.dtos import CreateUser, UserToLogin, LoggedUse
 from src.modules.auth.application.services import PasswordHasher
 from src.modules.auth.domain.repositories import UserRepository
 from src.modules.auth.domain.entities import User
-from src.modules.auth.domain.value_objects import Email, Password
+from src.modules.auth.domain.value_objects import Email, Password, Login
 
 
 class RegisterUser(Command):
@@ -25,7 +25,7 @@ class RegisterUserCommandHandler(CommandHandler):
 
         self._user_repository.store(
             User.register(
-                command.get_user().get_login(),
+                Login(command.get_user().get_login()),
                 Email(command.get_user().get_email()),
                 Password(password['hashed'], password['salt'])
             )

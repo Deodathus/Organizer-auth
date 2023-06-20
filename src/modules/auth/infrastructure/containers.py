@@ -1,5 +1,7 @@
 
 from dependency_injector import containers, providers
+
+from src.modules.auth.application.queries import FetchTokenByCredentialsHandler, FetchTokenByCredentials
 from src.modules.auth.application.services import PasswordHasher
 from src.modules.auth.application.commands import RegisterUser, RegisterUserCommandHandler
 from src.modules.auth.infrastructure.repositories import MysqlUserRepository
@@ -18,6 +20,11 @@ class AuthContainer(containers.DeclarativeContainer):
     )
 
     # query handlers
+    fetch_token_by_credentials_query_handler = providers.Factory(
+        FetchTokenByCredentialsHandler,
+        user_repository,
+        password_hasher
+    )
 
     # command handlers
     register_user_command_handler = providers.Factory(
@@ -31,5 +38,12 @@ class AuthContainer(containers.DeclarativeContainer):
         CommandBus,
         providers.Dict({
             RegisterUser: register_user_command_handler
+        })
+    )
+
+    query_bus = providers.Factory(
+        QueryBus,
+        providers.Dict({
+            FetchTokenByCredentials: fetch_token_by_credentials_query_handler
         })
     )

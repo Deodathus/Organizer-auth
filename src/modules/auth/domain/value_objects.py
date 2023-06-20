@@ -37,3 +37,29 @@ class UserStatus(Enum):
     ACTIVE = 1
     BANNED = 2
 
+
+class Token(object):
+    def __init__(self, token: str, valid_time: int):
+        self._token = token
+        self._valid_time = valid_time
+
+
+class UserCredentials(object):
+    def __init__(self, login: str, password: Password):
+        self._login = login
+        self._password = password
+
+    def get_login(self) -> str:
+        return self._login
+
+    def get_password(self) -> Password:
+        return self._password
+
+
+class Login(object):
+    def __init__(self, login: str):
+        self._login = login
+
+    def get_login(self) -> str:
+        return self._login
+

@@ -28,6 +28,8 @@ def upgrade() -> None:
         sa.Column('created_at', sa.DATETIME(), default='now')
     )
 
+    op.create_unique_constraint('unique_user_login', 'users', ['login'])
+
 
 def downgrade() -> None:
     op.drop_table('users')
