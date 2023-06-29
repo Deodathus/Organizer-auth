@@ -16,6 +16,8 @@ services:
       - '4406:3306'
     volumes:
       - ./mysql:/var/lib/mysql
+    networks:
+      - organizer_organizer_network
   python:
     container_name: organizer-auth
     build:
@@ -26,3 +28,9 @@ services:
       - ./:/auth
     depends_on:
       - db
+    networks:
+      - organizer_organizer_network
+
+networks:
+    organizer_organizer_network:
+        external: true
