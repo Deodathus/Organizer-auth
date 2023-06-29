@@ -29,7 +29,15 @@ class UserToLogin(object):
         return self._password
 
 
-class Token(object):
+class CreatedToken(object):
+    def __init__(self, token: str):
+        self._token = token
+
+    def get_value(self) -> str:
+        return self._token
+
+
+class LoggedUser(object):
     def __init__(self, token: str, valid_time: int, created_at: datetime.datetime):
         self._token = token
         self._valid_time = valid_time
@@ -43,11 +51,3 @@ class Token(object):
 
     def get_created_at(self) -> datetime.datetime:
         return self._created_at
-
-
-class LoggedUser(object):
-    def __init__(self, token: Token):
-        self._token = token
-
-    def get_token(self) -> Token:
-        return self._token

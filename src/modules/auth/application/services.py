@@ -1,8 +1,9 @@
 import datetime
+import uuid
 
 import bcrypt
 
-from src.modules.auth.application.dtos import Token
+from src.modules.auth.application.dtos import CreatedToken
 from src.modules.auth.domain.value_objects import UserId, Password
 
 
@@ -29,5 +30,5 @@ class PasswordHasher(object):
 
 
 class TokenCreator(object):
-    def create(self, user_id: UserId, password: Password) -> Token:
-        return Token('test', 3000, datetime.datetime(2023, 6, 16, 12, 3, 25))
+    def create(self, user_id: UserId, password: Password) -> CreatedToken:
+        return CreatedToken(str(uuid.uuid4()))

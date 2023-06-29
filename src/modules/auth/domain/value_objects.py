@@ -6,6 +6,9 @@ from src.modules.shared.domain.value_objects import ID
 class UserId(ID):
     pass
 
+class TokenId(ID):
+    pass
+
 
 class Email(object):
     _email: str
@@ -38,10 +41,12 @@ class UserStatus(Enum):
     BANNED = 2
 
 
-class Token(object):
-    def __init__(self, token: str, valid_time: int):
+class TokenValue(object):
+    def __init__(self, token: str):
         self._token = token
-        self._valid_time = valid_time
+
+    def get_token_value(self) -> str:
+        return self._token
 
 
 class UserCredentials(object):

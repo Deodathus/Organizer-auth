@@ -1,10 +1,11 @@
-
+from src.modules.auth.application.exceptions import LoginAlreadyTaken
+from src.modules.auth.domain.exceptions import UserWithGivenLoginAlreadyExists
 from src.modules.shared.application.messenger import Command, CommandHandler
 from src.modules.auth.application.dtos import CreateUser, UserToLogin, LoggedUser
-from src.modules.auth.application.services import PasswordHasher
+from src.modules.auth.application.services import PasswordHasher, TokenCreator
 from src.modules.auth.domain.repositories import UserRepository
-from src.modules.auth.domain.entities import User
-from src.modules.auth.domain.value_objects import Email, Password, Login
+from src.modules.auth.domain.entities import User, Token
+from src.modules.auth.domain.value_objects import Email, Password, Login, UserId, TokenValue as TokenValue
 
 
 class RegisterUser(Command):
@@ -16,20 +17,31 @@ class RegisterUser(Command):
 
 
 class RegisterUserCommandHandler(CommandHandler):
-    def __init__(self, user_repository: UserRepository, password_hasher: PasswordHasher):
+    def __init__(self, user_repository: UserRepository, password_hasher: PasswordHasher, token_creator: TokenCreator):
         self._user_repository = user_repository
         self._password_hasher = password_hasher
+        self._token_creator = token_creator
 
     def handle(self, command: RegisterUser) -> None:
         password = self._password_hasher.hash(command.get_user().get_password())
+        user_id = UserId.generate()
+        hashed_password = Password(password['hashed'], password['salt'])
 
-        self._user_repository.store(
-            User.register(
-                Login(command.get_user().get_login()),
-                Email(command.get_user().get_email()),
-                Password(password['hashed'], password['salt'])
+        try:
+            self._user_repository.store(
+                User.register(
+                    user_id,
+                    Login(command.get_user().get_login()),
+                    Email(command.get_user().get_email()),
+                    hashed_password,
+                    Token.create(
+                        user_id,
+                        TokenValue(self._token_creator.create(user_id, hashed_password).get_value())
+                    )
+                )
             )
-        )
+        except UserWithGivenLoginAlreadyExists:
+            raise LoginAlreadyTaken.create()
 
 
 class LoginUser(Command):

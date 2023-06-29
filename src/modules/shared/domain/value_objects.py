@@ -4,7 +4,7 @@ import uuid
 
 
 class ID(object):
-    id: uuid.UUID
+    value: uuid.UUID
 
     def __init__(self, value: uuid.UUID):
         self.value = value

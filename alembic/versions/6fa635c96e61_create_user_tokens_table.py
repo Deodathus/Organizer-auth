@@ -19,6 +19,7 @@ depends_on = None
 def upgrade() -> None:
     op.create_table(
         'user_tokens',
+        sa.Column('id', sa.VARCHAR(255), primary_key=True),
         sa.Column('user_id', sa.VARCHAR(255), nullable=False),
         sa.Column('token', sa.VARCHAR(255), nullable=False),
         sa.Column('active', sa.BOOLEAN, nullable=False),

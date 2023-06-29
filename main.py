@@ -1,7 +1,7 @@
 
 from fastapi import FastAPI
 from container import ApplicationContainer
-from src.modules.auth.infrastructure.http import routes as auth_routes
+from src.modules.auth.infrastructure.http import controllers as auth_routes
 from src.modules.project.infrastructure.http import routes as project_routes
 
 

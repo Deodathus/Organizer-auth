@@ -1,6 +1,6 @@
 
-from .entities import User
-from .value_objects import Token, UserCredentials, Login
+from .entities import User, Token
+from .value_objects import UserCredentials, Login
 
 
 class UserRepository(object):

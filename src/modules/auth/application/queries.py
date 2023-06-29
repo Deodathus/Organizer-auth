@@ -1,7 +1,8 @@
 import datetime
 
-from src.modules.auth.application.dtos import UserToLogin, LoggedUser, Token
+from src.modules.auth.application.dtos import UserToLogin, LoggedUser
 from src.modules.auth.application.exceptions import InvalidCredentials
+from src.modules.auth.application.services import PasswordHasher
 from src.modules.auth.domain.exceptions import UserWithGivenCredentialsDoesNotExist
 from src.modules.auth.domain.repositories import UserRepository
 from src.modules.auth.domain.value_objects import UserCredentials, Password, Login
@@ -17,27 +18,26 @@ class FetchTokenByCredentials(Query):
 
 
 class FetchTokenByCredentialsHandler(QueryHandler):
-    def __init__(self, user_repository: UserRepository, password_hasher):
+    def __init__(self, user_repository: UserRepository, password_hasher: PasswordHasher):
         self._user_repository = user_repository
+        self._password_hasher = password_hasher
 
     def handle(self, query: FetchTokenByCredentials) -> LoggedUser:
         try:
             salt = self._user_repository.fetch_salt_by_login(
                 Login(query.get_user().get_login())
             )
+
+            token = self._user_repository.fetch_token_by_credentials(
+                UserCredentials(
+                    query.get_user().get_login(),
+                    Password(
+                        self._password_hasher.hash_with_salt(query.get_user().get_password(), salt)['hashed'],
+                        salt
+                    )
+                )
+            )
         except UserWithGivenCredentialsDoesNotExist:
             raise InvalidCredentials.create()
 
-
-        # token = self._user_repository.fetch_token_by_credentials(
-        #     UserCredentials(
-        #         query.get_user().get_login(),
-        #         Password(
-        #
-        #         )
-        #     )
-        # )
-
-        return LoggedUser(
-            Token('', 1, datetime.datetime(2023, 10, 5))
-        )
+        return LoggedUser(token.get_token().get_token_value(), token.get_valid_time(), token.get_created_at())
