@@ -1,11 +1,13 @@
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
-from src.modules.auth.domain.exceptions import UserWithGivenCredentialsDoesNotExist, UserWithGivenLoginAlreadyExists
+from src.modules.auth.domain.exceptions import UserWithGivenCredentialsDoesNotExist, UserWithGivenLoginAlreadyExists, \
+    UserWithGivenIdDoesNotExist
 from src.modules.auth.domain.repositories import UserRepository
 from src.modules.auth.domain.entities import User, Token
 from sqlalchemy import create_engine, text
 
-from src.modules.auth.domain.value_objects import UserCredentials, Login, TokenId, TokenValue, UserId
+from src.modules.auth.domain.value_objects import UserCredentials, Login, TokenId, TokenValue, UserId, UserStatus, \
+    Email, DummyPassword
 
 engine = create_engine('mysql://organizer-auth:password@organizer-auth-db/organizer_auth')
 connection = engine.connect()
@@ -102,3 +104,43 @@ class MysqlUserRepository(UserRepository):
             )
         except NoResultFound:
             raise UserWithGivenCredentialsDoesNotExist.with_login(credentials.get_login())
+
+    def fetch_by_id(self, user_id: UserId) -> User:
+        try:
+            user_data = connection.execute(
+                text(
+                    f'select login, email, status from {self._TABLE_NAME} where id = :id and status = :status'
+                ),
+                {
+                    'id': user_id.value,
+                    'status': UserStatus.ACTIVE.value
+                }
+            ).fetchone()
+
+            user_token = connection.execute(
+                text(
+                    f'select id, token, valid_time, active, created_at '
+                    f'from {self._TOKEN_TABLE_NAME} where user_id = :user_id'
+                ),
+                {
+                    'user_id': user_id.value
+                }
+            ).fetchone()
+
+            return User.reproduce(
+                user_id,
+                Login(user_data.login),
+                Email(user_data.email),
+                DummyPassword(),
+                UserStatus[user_data.status.upper()],
+                Token.reproduce(
+                    TokenId.from_string(user_token.id),
+                    user_id,
+                    TokenValue(user_token.token),
+                    user_token.valid_time,
+                    user_token.active,
+                    user_token.created_at
+                )
+            )
+        except NoResultFound:
+            raise UserWithGivenIdDoesNotExist

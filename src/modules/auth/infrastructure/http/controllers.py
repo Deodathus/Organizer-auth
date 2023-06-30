@@ -8,8 +8,8 @@ from .models import AuthModel, RegisterModel
 from src.modules.shared.application.messenger import CommandBus, QueryBus
 from src.modules.auth.application.commands import RegisterUser
 from src.modules.auth.application.dtos import CreateUser, UserToLogin
-from ...application.exceptions import InvalidCredentials, LoginAlreadyTaken
-from ...application.queries import FetchTokenByCredentials
+from ...application.exceptions import InvalidCredentials, LoginAlreadyTaken, UserDoesNotExist
+from ...application.queries import FetchTokenByCredentials, FetchUserById
 
 router = APIRouter()
 
@@ -82,3 +82,27 @@ def register(
             "message": 'Login is already taken!',
             "code": status.HTTP_400_BAD_REQUEST
         }
+
+
+@router.get('/user/{user_id}')
+@inject
+def fetch_user_by_id(
+        user_id: str,
+        response: Response,
+        query_bus: QueryBus = Depends(Provide[ApplicationContainer.auth.query_bus])
+) -> dict:
+    try:
+        user_dto = query_bus.handle(FetchUserById(user_id))
+
+        return {
+            "message": user_dto,
+            "code": status.HTTP_200_OK
+        }
+    except UserDoesNotExist:
+        response.status_code = status.HTTP_404_NOT_FOUND
+
+        return {
+            "message": 'User does not exist!',
+            "code": status.HTTP_404_NOT_FOUND
+        }
+

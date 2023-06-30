@@ -6,6 +6,7 @@ from src.modules.shared.domain.value_objects import ID
 class UserId(ID):
     pass
 
+
 class TokenId(ID):
     pass
 
@@ -33,6 +34,14 @@ class Password(object):
 
     def get_salt(self) -> str:
         return self._salt
+
+
+class DummyPassword(Password):
+    _password: str = 'none'
+    _salt: str = 'none'
+
+    def __init__(self):
+        pass
 
 
 class UserStatus(Enum):

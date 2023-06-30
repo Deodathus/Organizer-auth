@@ -51,3 +51,16 @@ class LoggedUser(object):
 
     def get_created_at(self) -> datetime.datetime:
         return self._created_at
+
+
+class UserDTO(object):
+    def __init__(self, user_id: str, token: str, email: str):
+        self._user_id = user_id
+        self._token = token
+        self._email = email
+
+    def get_user_id(self) -> str:
+        return self._user_id
+
+    def get_token(self) -> str:
+        return self._token

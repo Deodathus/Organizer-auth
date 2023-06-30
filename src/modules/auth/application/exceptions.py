@@ -9,3 +9,9 @@ class LoginAlreadyTaken(Exception):
     @staticmethod
     def create() -> Exception:
         return LoginAlreadyTaken()
+
+
+class UserDoesNotExist(Exception):
+    @staticmethod
+    def create() -> Exception:
+        return UserDoesNotExist()
