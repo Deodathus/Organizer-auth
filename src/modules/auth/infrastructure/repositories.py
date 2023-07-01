@@ -7,7 +7,7 @@ from src.modules.auth.domain.entities import User, Token
 from sqlalchemy import create_engine, text
 
 from src.modules.auth.domain.value_objects import UserCredentials, Login, TokenId, TokenValue, UserId, UserStatus, \
-    Email, DummyPassword
+    Email, DummyPassword, RefreshTokenValue
 
 engine = create_engine('mysql://organizer-auth:password@organizer-auth-db/organizer_auth')
 connection = engine.connect()
@@ -40,13 +40,14 @@ class MysqlUserRepository(UserRepository):
             connection.execute(
                 text(
                     f'insert into {self._TOKEN_TABLE_NAME} '
-                    f'(id, user_id, token, valid_time, active, created_at) '
-                    f'values (:id, :user_id, :token, :valid_time, :active, NOW())'
+                    f'(id, user_id, token, refresh_token, valid_time, active, created_at) '
+                    f'values (:id, :user_id, :token, :refresh_token, :valid_time, :active, NOW())'
                 ),
                 {
                     'id': str(user.get_token().get_id().value),
                     'user_id': user.get_user_id().value,
                     'token': user.get_token().get_token().get_token_value(),
+                    'refresh_token': user.get_token().get_refresh_token().get_token_value(),
                     'valid_time': user.get_token().get_valid_time(),
                     'active': user.get_token().get_active()
                 }
@@ -85,7 +86,7 @@ class MysqlUserRepository(UserRepository):
 
             raw_result = connection.execute(
                 text(
-                    f'select id, user_id, token, valid_time, active, created_at from {self._TOKEN_TABLE_NAME} '
+                    f'select id, user_id, token, refresh_token, valid_time, active, created_at from {self._TOKEN_TABLE_NAME} '
                     f'where user_id = :user_id'
                 ),
                 {
@@ -98,6 +99,7 @@ class MysqlUserRepository(UserRepository):
                 TokenId.from_string(raw_result.id),
                 UserId.from_string(raw_result.user_id),
                 TokenValue(raw_result.token),
+                RefreshTokenValue(raw_result.refresh_token),
                 raw_result.valid_time,
                 raw_result.active,
                 raw_result.created_at
@@ -117,9 +119,12 @@ class MysqlUserRepository(UserRepository):
                 }
             ).fetchone()
 
+            if user_data is None:
+                raise UserWithGivenIdDoesNotExist
+
             user_token = connection.execute(
                 text(
-                    f'select id, token, valid_time, active, created_at '
+                    f'select id, token, refresh_token, valid_time, active, created_at '
                     f'from {self._TOKEN_TABLE_NAME} where user_id = :user_id'
                 ),
                 {
@@ -137,6 +142,7 @@ class MysqlUserRepository(UserRepository):
                     TokenId.from_string(user_token.id),
                     user_id,
                     TokenValue(user_token.token),
+                    RefreshTokenValue(user_token.refresh_token),
                     user_token.valid_time,
                     user_token.active,
                     user_token.created_at

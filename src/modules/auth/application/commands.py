@@ -5,7 +5,8 @@ from src.modules.auth.application.dtos import CreateUser, UserToLogin, LoggedUse
 from src.modules.auth.application.services import PasswordHasher, TokenCreator
 from src.modules.auth.domain.repositories import UserRepository
 from src.modules.auth.domain.entities import User, Token
-from src.modules.auth.domain.value_objects import Email, Password, Login, UserId, TokenValue as TokenValue
+from src.modules.auth.domain.value_objects import Email, Password, Login, UserId, TokenValue as TokenValue, \
+    RefreshTokenValue
 
 
 class RegisterUser(Command):
@@ -36,7 +37,8 @@ class RegisterUserCommandHandler(CommandHandler):
                     hashed_password,
                     Token.create(
                         user_id,
-                        TokenValue(self._token_creator.create(user_id, hashed_password).get_value())
+                        TokenValue(self._token_creator.create().get_value()),
+                        RefreshTokenValue(self._token_creator.create().get_value())
                     )
                 )
             )

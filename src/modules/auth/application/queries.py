@@ -62,6 +62,9 @@ class FetchUserByIdHandler(QueryHandler):
             return UserDTO(
                 query.get_user_id(),
                 user.get_token().get_token().get_token_value(),
+                user.get_token().get_refresh_token().get_token_value(),
+                user.get_token().get_valid_time(),
+                user.get_token().get_created_at(),
                 user.get_email().get_email()
             )
         except UserWithGivenIdDoesNotExist:

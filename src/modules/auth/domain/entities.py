@@ -3,7 +3,8 @@ from __future__ import annotations
 
 import datetime
 
-from src.modules.auth.domain.value_objects import UserId, Email, Password, UserStatus, Login, TokenValue, TokenId
+from src.modules.auth.domain.value_objects import UserId, Email, Password, UserStatus, Login, TokenValue, TokenId, \
+    RefreshTokenValue
 
 
 class Token(object):
@@ -13,6 +14,7 @@ class Token(object):
     _token_id: TokenId
     _user_id: UserId
     _token: TokenValue
+    _refresh_token: RefreshTokenValue
     _valid_time: int
     _active: bool
     _created_at: datetime.datetime
@@ -22,6 +24,7 @@ class Token(object):
             token_id: TokenId,
             user_id: UserId,
             token: TokenValue,
+            refresh_token: RefreshTokenValue,
             valid_time: int,
             active: bool,
             created_at: datetime.datetime = datetime.datetime
@@ -29,16 +32,18 @@ class Token(object):
         self._token_id = token_id
         self._user_id = user_id
         self._token = token
+        self._refresh_token = refresh_token
         self._valid_time = valid_time
         self._active = active
         self._created_at = created_at
 
     @staticmethod
-    def create(user_id: UserId, token: TokenValue) -> Token:
+    def create(user_id: UserId, token: TokenValue, refresh_token: RefreshTokenValue) -> Token:
         return Token(
             TokenId.generate(),
             user_id,
             token,
+            refresh_token,
             Token._TOKEN_VALID_TIME,
             True
         )
@@ -48,6 +53,7 @@ class Token(object):
             token_id: TokenId,
             user_id: UserId,
             token: TokenValue,
+            refresh_token: RefreshTokenValue,
             valid_time: int,
             active: bool,
             created_at: datetime.datetime
@@ -56,6 +62,7 @@ class Token(object):
             token_id,
             user_id,
             token,
+            refresh_token,
             valid_time,
             active,
             created_at
@@ -69,6 +76,9 @@ class Token(object):
 
     def get_token(self) -> TokenValue:
         return self._token
+
+    def get_refresh_token(self) -> RefreshTokenValue:
+        return self._refresh_token
 
     def get_valid_time(self) -> int:
         return self._valid_time

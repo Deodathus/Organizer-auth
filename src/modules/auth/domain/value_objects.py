@@ -58,6 +58,14 @@ class TokenValue(object):
         return self._token
 
 
+class RefreshTokenValue(object):
+    def __init__(self, token: str):
+        self._token = token
+
+    def get_token_value(self) -> str:
+        return self._token
+
+
 class UserCredentials(object):
     def __init__(self, login: str, password: Password):
         self._login = login

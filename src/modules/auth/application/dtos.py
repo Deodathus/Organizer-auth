@@ -54,9 +54,20 @@ class LoggedUser(object):
 
 
 class UserDTO(object):
-    def __init__(self, user_id: str, token: str, email: str):
+    def __init__(
+        self,
+        user_id: str,
+        token: str,
+        refresh_token: str,
+        token_valid_time: int,
+        token_created_at: datetime.datetime,
+        email: str
+    ):
         self._user_id = user_id
         self._token = token
+        self._refresh_token = refresh_token
+        self._token_valid_time = token_valid_time
+        self._token_created_at = token_created_at
         self._email = email
 
     def get_user_id(self) -> str:
@@ -64,3 +75,12 @@ class UserDTO(object):
 
     def get_token(self) -> str:
         return self._token
+
+    def get_refresh_token(self) -> str:
+        return self._refresh_token
+
+    def get_token_valid_time(self) -> str:
+        return self._token_valid_time
+
+    def get_token_created_at(self) -> datetime.datetime:
+        return self._token_created_at

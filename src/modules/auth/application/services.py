@@ -30,5 +30,5 @@ class PasswordHasher(object):
 
 
 class TokenCreator(object):
-    def create(self, user_id: UserId, password: Password) -> CreatedToken:
+    def create(self) -> CreatedToken:
         return CreatedToken(str(uuid.uuid4()))

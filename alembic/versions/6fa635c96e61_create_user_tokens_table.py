@@ -22,12 +22,13 @@ def upgrade() -> None:
         sa.Column('id', sa.VARCHAR(255), primary_key=True),
         sa.Column('user_id', sa.VARCHAR(255), nullable=False),
         sa.Column('token', sa.VARCHAR(255), nullable=False),
+        sa.Column('refresh_token', sa.VARCHAR(255), nullable=False),
         sa.Column('active', sa.BOOLEAN, nullable=False),
         sa.Column('valid_time', sa.INTEGER, nullable=False),
         sa.Column('created_at', sa.DATETIME, default='now')
     )
 
-    op.create_index('user_id_token_active_idx', 'user_tokens', ['user_id', 'token', 'active'])
+    op.create_index('user_id_token_active_idx', 'user_tokens', ['user_id', 'token', 'refresh_token', 'active'])
 
 
 def downgrade() -> None:
