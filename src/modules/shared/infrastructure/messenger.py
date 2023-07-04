@@ -1,6 +1,6 @@
 
-from src.modules.shared.application.messenger import Query, Command, \
-    QueryBus as QueryBusInterface, CommandBus as CommandBusInterface
+from src.modules.shared.application.messenger import Query, Command, Event, \
+    QueryBus as QueryBusInterface, CommandBus as CommandBusInterface, EventBus as EventBusInterface
 
 
 class CommandBus(CommandBusInterface):
@@ -22,3 +22,12 @@ class QueryBus(QueryBusInterface):
     def handle(self, query: Query):
         return self.handlers[query.__class__].handle(query)
 
+
+class EventBus(EventBusInterface):
+    handlers = {}
+
+    def __init__(self, handlers: dict):
+        self.handlers = handlers
+
+    def dispatch(self, event: Event) -> None:
+        return self.handlers[event.__class__].handle(event)

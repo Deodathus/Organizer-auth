@@ -18,6 +18,15 @@ class CommandHandler(object):
         pass
 
 
+class Event(object):
+    pass
+
+
+class EventHandler(object):
+    def handle(self, event: Event):
+        pass
+
+
 class CommandBus(object):
     def add(self, command: str, handler: str) -> None:
         pass
@@ -32,3 +41,12 @@ class QueryBus(object):
 
     def handle(self, query: Query):
         pass
+
+
+class EventBus(object):
+    def add(self, event: Event, handler: str) -> None:
+        pass
+
+    def dispatch(self, event: Event):
+        pass
+

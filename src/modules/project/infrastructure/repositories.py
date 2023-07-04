@@ -4,7 +4,7 @@ import array
 from sqlalchemy import create_engine, text
 from src.modules.project.domain.repositories import ProjectRepository, ProjectWebhookRepository
 from src.modules.project.domain.entities import Project, ProjectWebhook
-from src.modules.project.domain.value_objects import ProjectId
+from src.modules.project.domain.value_objects import ProjectId, ProjectWebhookType, ProjectWebhookId, ProjectWebhookUrl
 from src.modules.project.application.dtos import ProjectDTO
 
 engine = create_engine('mysql://organizer-auth:password@organizer-auth-db/organizer_auth')
@@ -91,4 +91,24 @@ class MysqlProjectWebhookRepository(ProjectWebhookRepository):
                 'url': webhook.get_url().get_value(),
                 'active': webhook.get_active()
             }
+        )
+
+    def get_by_project_id_and_type(self, project_id: ProjectId, webhook_type: ProjectWebhookType) -> ProjectWebhook:
+        raw_data = connection.execute(
+            text(
+                f'select id, project_id, type, url, active from {self._TABLE_NAME} '
+                f'where project_id = :project_id and type = :type'
+            ),
+            {
+                'project_id': project_id.value,
+                'type': webhook_type.name
+            }
+        ).fetchone()
+
+        return ProjectWebhook.reproduce(
+            ProjectWebhookId.from_string(raw_data.id),
+            ProjectId.from_string(raw_data.project_id),
+            ProjectWebhookType[raw_data.type],
+            ProjectWebhookUrl(raw_data.url),
+            raw_data.active
         )

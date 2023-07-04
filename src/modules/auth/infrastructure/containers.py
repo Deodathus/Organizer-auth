@@ -41,7 +41,8 @@ class AuthContainer(containers.DeclarativeContainer):
         RegisterUserCommandHandler,
         user_repository,
         password_hasher,
-        token_creator
+        token_creator,
+        event_bus
     )
 
     # messenger

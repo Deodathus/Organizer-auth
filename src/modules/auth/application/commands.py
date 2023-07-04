@@ -1,6 +1,8 @@
+
 from src.modules.auth.application.exceptions import LoginAlreadyTaken
 from src.modules.auth.domain.exceptions import UserWithGivenLoginAlreadyExists
-from src.modules.shared.application.messenger import Command, CommandHandler
+from src.modules.auth.module_api.events import UserRegistered
+from src.modules.shared.application.messenger import Command, CommandHandler, EventBus
 from src.modules.auth.application.dtos import CreateUser, UserToLogin, LoggedUser
 from src.modules.auth.application.services import PasswordHasher, TokenCreator
 from src.modules.auth.domain.repositories import UserRepository
@@ -18,10 +20,17 @@ class RegisterUser(Command):
 
 
 class RegisterUserCommandHandler(CommandHandler):
-    def __init__(self, user_repository: UserRepository, password_hasher: PasswordHasher, token_creator: TokenCreator):
+    def __init__(
+        self,
+        user_repository: UserRepository,
+        password_hasher: PasswordHasher,
+        token_creator: TokenCreator,
+        event_bus: EventBus
+    ):
         self._user_repository = user_repository
         self._password_hasher = password_hasher
         self._token_creator = token_creator
+        self._event_bus = event_bus
 
     def handle(self, command: RegisterUser) -> None:
         password = self._password_hasher.hash(command.get_user().get_password())
@@ -40,6 +49,13 @@ class RegisterUserCommandHandler(CommandHandler):
                         TokenValue(self._token_creator.create().get_value()),
                         RefreshTokenValue(self._token_creator.create().get_value())
                     )
+                )
+            )
+
+            self._event_bus.dispatch(
+                UserRegistered(
+                    user_id.value,
+                    '90b9e3d6-8b6b-4552-a101-3fbdca5e7615'
                 )
             )
         except UserWithGivenLoginAlreadyExists:

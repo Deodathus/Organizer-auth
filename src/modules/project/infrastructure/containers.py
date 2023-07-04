@@ -9,6 +9,7 @@ from src.modules.shared.infrastructure.messenger import QueryBus, CommandBus
 
 
 class ProjectContainer(containers.DeclarativeContainer):
+    event_bus = None
 
     # repositories
     project_repository = providers.Factory(

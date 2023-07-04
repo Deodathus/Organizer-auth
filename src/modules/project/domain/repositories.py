@@ -1,6 +1,6 @@
 
 from .entities import Project, ProjectWebhook
-from .value_objects import ProjectId
+from .value_objects import ProjectId, ProjectWebhookType
 
 
 class ProjectRepository:
@@ -30,4 +30,7 @@ class ProjectWebhookRepository:
     ...
 
     def store(self, webhook: ProjectWebhook) -> None:
+        pass
+
+    def get_by_project_id_and_type(self, project_id: ProjectId, webhook_type: ProjectWebhookType) -> ProjectWebhook:
         pass
