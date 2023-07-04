@@ -1,11 +1,14 @@
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Response
 from dependency_injector.wiring import inject, Provide
-from .requests import CreateProjectRequest, UpdateProjectRequest
+
+from .requests import CreateProjectRequest, UpdateProjectRequest, StoreProjectWebhookRequest
 from src.modules.project.application.queries import GetAllProjects
-from src.modules.project.application.commands import StoreProject, DeleteProject, UpdateProject
+from src.modules.project.application.commands import StoreProject, DeleteProject, UpdateProject, StoreProjectWebhook
 from container import ApplicationContainer
 from src.modules.shared.application.messenger import QueryBus, CommandBus
+from ...application.dtos import ProjectWebhookToStore
+from ...application.exceptions import InvalidWebhookType, ProjectDoesNotExist
 
 router = APIRouter()
 
@@ -76,3 +79,47 @@ def update_project(
         "message": None,
         "code": status.HTTP_204_NO_CONTENT
     }
+
+
+@router.post('/project/{project_id}/webhook')
+@inject
+def store_webhook(
+        project_id: str,
+        request: StoreProjectWebhookRequest,
+        response: Response,
+        command_bus: CommandBus = Depends(
+            Provide[ApplicationContainer.project.command_bus]
+        )
+) -> dict:
+    try:
+        command_bus.handle(
+            StoreProjectWebhook(
+                ProjectWebhookToStore(
+                    project_id,
+                    request.type,
+                    request.url
+                )
+            )
+        )
+    except InvalidWebhookType:
+        response.status_code = status.HTTP_400_BAD_REQUEST
+
+        return {
+            "message": 'Invalid webhook type!',
+            "code": status.HTTP_400_BAD_REQUEST
+        }
+    except ProjectDoesNotExist:
+        response.status_code = status.HTTP_404_NOT_FOUND
+
+        return {
+            "message": 'Project does not exist!',
+            "code": status.HTTP_404_NOT_FOUND
+        }
+
+    response.status_code = status.HTTP_201_CREATED
+
+    return {
+        "message": None,
+        "code": status.HTTP_201_CREATED
+    }
+

@@ -1,5 +1,5 @@
 
-from .entities import Project
+from .entities import Project, ProjectWebhook
 from .value_objects import ProjectId
 
 
@@ -20,8 +20,14 @@ class ProjectRepository:
     def update(self, project_id: ProjectId, project_name: str) -> None:
         pass
 
+    def exists_by_id(self, project_id: ProjectId) -> bool:
+        pass
 
-class ProjectOwnerRepository:
-    """ An interface to project owner repository"""
+
+class ProjectWebhookRepository:
+    """ An interface to project webhook repository"""
 
     ...
+
+    def store(self, webhook: ProjectWebhook) -> None:
+        pass

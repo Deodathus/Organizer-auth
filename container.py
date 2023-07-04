@@ -9,7 +9,7 @@ class ApplicationContainer(containers.DeclarativeContainer):
 
     wiring_config = containers.WiringConfiguration(modules=[
         'src.modules.auth.infrastructure.http.controllers',
-        'src.modules.project.infrastructure.http.routes',
+        'src.modules.project.infrastructure.http.controllers',
     ])
 
     project = providers.Container(

@@ -1,8 +1,10 @@
 
+from src.modules.project.application.dtos import ProjectWebhookToStore
+from src.modules.project.application.exceptions import InvalidWebhookType, ProjectDoesNotExist
 from src.modules.shared.application.messenger import Command, CommandHandler
-from src.modules.project.domain.repositories import ProjectRepository
-from src.modules.project.domain.entities import Project
-from src.modules.project.domain.value_objects import ProjectId
+from src.modules.project.domain.repositories import ProjectRepository, ProjectWebhookRepository
+from src.modules.project.domain.entities import Project, ProjectWebhook
+from src.modules.project.domain.value_objects import ProjectId, ProjectWebhookType, ProjectWebhookUrl
 
 
 class StoreProject(Command):
@@ -60,3 +62,40 @@ class UpdateProjectCommandHandler(CommandHandler):
 
     def handle(self, command: UpdateProject) -> None:
         self._project_repository.update(command.get_project_id(), command.get_project_name())
+
+
+class StoreProjectWebhook(Command):
+    _webhook_to_store: ProjectWebhookToStore
+
+    def __init__(self, webhook: ProjectWebhookToStore):
+        self._webhook_to_store = webhook
+
+    def get_webhook(self) -> ProjectWebhookToStore:
+        return self._webhook_to_store
+
+
+class StoreProjectWebhookHandler(CommandHandler):
+    def __init__(self, project_webhook_repository: ProjectWebhookRepository, project_repository: ProjectRepository):
+        self._project_webhook_repository = project_webhook_repository
+        self._project_repository = project_repository
+
+    def handle(self, command: StoreProjectWebhook) -> None:
+        project_exists = self._project_repository.exists_by_id(
+            ProjectId.from_string(command.get_webhook().get_project_id())
+        )
+
+        if not project_exists:
+            raise ProjectDoesNotExist(command.get_webhook().get_project_id())
+
+        if command.get_webhook().get_type() in ProjectWebhookType.__members__:
+            webhook_type = ProjectWebhookType[command.get_webhook().get_type()]
+
+            self._project_webhook_repository.store(
+                ProjectWebhook.create(
+                    ProjectId.from_string(command.get_webhook().get_project_id()),
+                    webhook_type,
+                    ProjectWebhookUrl(command.get_webhook().get_url())
+                )
+            )
+        else:
+            raise InvalidWebhookType.with_value(command.get_webhook().get_type())

@@ -8,3 +8,9 @@ class CreateProjectRequest(BaseModel):
 
 class UpdateProjectRequest(BaseModel):
     name: str
+
+
+class StoreProjectWebhookRequest(BaseModel):
+    url: str
+    type: str
+

@@ -1,5 +1,5 @@
 
-from src.modules.shared.application.messenger import Query, Command, QueryHandler, \
+from src.modules.shared.application.messenger import Query, Command, \
     QueryBus as QueryBusInterface, CommandBus as CommandBusInterface
 
 

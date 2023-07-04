@@ -15,3 +15,23 @@ class ProjectsCollection(object):
 
     def get(self) -> list:
         return self.projects
+
+
+class ProjectWebhookToStore(object):
+    _project_id: str
+    _type: str
+    _url: str
+
+    def __init__(self, project_id: str, webhook_type: str, url: str):
+        self._project_id = project_id
+        self._type = webhook_type
+        self._url = url
+
+    def get_project_id(self) -> str:
+        return self._project_id
+
+    def get_type(self) -> str:
+        return self._type
+
+    def get_url(self) -> str:
+        return self._url
