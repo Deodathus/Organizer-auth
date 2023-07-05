@@ -1,12 +1,9 @@
 
 from dependency_injector import containers, providers
 
-from src.modules.auth.module_api.events import UserRegistered
-from src.modules.project.infrastructure.adapters import UserWebhookRequestTriggerer
 from src.modules.project.infrastructure.containers import ProjectContainer
 from src.modules.auth.infrastructure.containers import AuthContainer
-from src.modules.project.infrastructure.repositories import MysqlProjectWebhookRepository
-from src.modules.shared.infrastructure.messenger import EventBus
+from src.modules.shared.infrastructure.containers import EventBusContainer
 
 
 class ApplicationContainer(containers.DeclarativeContainer):
@@ -17,29 +14,8 @@ class ApplicationContainer(containers.DeclarativeContainer):
         'src.modules.project.infrastructure.http.controllers',
     ])
 
-    # services
-    registered_webhook_triggerer = providers.Factory(
-        UserWebhookRequestTriggerer
-    )
-
-    # repositories
-    project_webhook_repository = providers.Factory(
-        MysqlProjectWebhookRepository
-    )
-
-    # event handlers
-    # --- project
-    trigger_registered_webhook = providers.Factory(
-        registered_webhook_triggerer,
-        project_webhook_repository
-    )
-
-    # event bus
-    event_bus = providers.Factory(
-        EventBus,
-        providers.Dict({
-            UserRegistered: trigger_registered_webhook
-        })
+    event_bus = providers.Container(
+        EventBusContainer
     )
 
     project = providers.Container(
@@ -48,7 +24,5 @@ class ApplicationContainer(containers.DeclarativeContainer):
 
     auth = providers.Container(
         AuthContainer,
-        {
-            'event_bus': event_bus
-        }
+        event_bus=event_bus
     )

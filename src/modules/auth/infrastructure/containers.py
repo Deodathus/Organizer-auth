@@ -10,6 +10,8 @@ from src.modules.shared.infrastructure.messenger import QueryBus, CommandBus
 
 
 class AuthContainer(containers.DeclarativeContainer):
+    event_bus = providers.DependenciesContainer()
+
     # services
     password_hasher = providers.Factory(
         PasswordHasher
@@ -42,7 +44,7 @@ class AuthContainer(containers.DeclarativeContainer):
         user_repository,
         password_hasher,
         token_creator,
-        event_bus
+        event_bus.event_bus
     )
 
     # messenger
