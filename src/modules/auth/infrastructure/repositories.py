@@ -9,19 +9,20 @@ from sqlalchemy import create_engine, text
 from src.modules.auth.domain.value_objects import UserCredentials, Login, TokenId, TokenValue, UserId, UserStatus, \
     Email, DummyPassword, RefreshTokenValue
 
-engine = create_engine('mysql://organizer-auth:password@organizer-auth-db/organizer_auth')
-connection = engine.connect()
-
 
 class MysqlUserRepository(UserRepository):
     """User repository implementation"""
     _TABLE_NAME = 'users'
     _TOKEN_TABLE_NAME = 'user_tokens'
 
+    def __init__(self):
+        engine = create_engine('mysql://organizer-auth:password@organizer-auth-db/organizer_auth')
+        self._connection = engine.connect()
+
     def store(self, user: User) -> None:
         try:
-            connection.begin()
-            connection.execute(
+            self._connection.begin()
+            self._connection.execute(
                 text(
                     f'insert into {self._TABLE_NAME} '
                     f'(id, login, email, password, salt, status, created_at) '
@@ -37,7 +38,7 @@ class MysqlUserRepository(UserRepository):
                 }
             )
 
-            connection.execute(
+            self._connection.execute(
                 text(
                     f'insert into {self._TOKEN_TABLE_NAME} '
                     f'(id, user_id, token, refresh_token, valid_time, active, created_at) '
@@ -53,13 +54,13 @@ class MysqlUserRepository(UserRepository):
                 }
             )
 
-            connection.connection.commit()
+            self._connection.connection.commit()
         except IntegrityError:
             raise UserWithGivenLoginAlreadyExists.with_login(user.get_login().get_login())
 
     def fetch_salt_by_login(self, login: Login) -> str:
         try:
-            raw_data = connection.execute(
+            raw_data = self._connection.execute(
                 text(
                     f'select salt from {self._TABLE_NAME} where login = :login'
                 ),
@@ -74,7 +75,7 @@ class MysqlUserRepository(UserRepository):
 
     def fetch_token_by_credentials(self, credentials: UserCredentials) -> Token:
         try:
-            user_id = connection.execute(
+            user_id = self._connection.execute(
                 text(
                     f'select id from {self._TABLE_NAME} where login = :login and password = :password'
                 ),
@@ -84,7 +85,7 @@ class MysqlUserRepository(UserRepository):
                 }
             ).one()
 
-            raw_result = connection.execute(
+            raw_result = self._connection.execute(
                 text(
                     f'select id, user_id, token, refresh_token, valid_time, active, created_at from {self._TOKEN_TABLE_NAME} '
                     f'where user_id = :user_id'
@@ -109,7 +110,7 @@ class MysqlUserRepository(UserRepository):
 
     def fetch_by_id(self, user_id: UserId) -> User:
         try:
-            user_data = connection.execute(
+            user_data = self._connection.execute(
                 text(
                     f'select login, email, status from {self._TABLE_NAME} where id = :id and status = :status'
                 ),
@@ -122,7 +123,7 @@ class MysqlUserRepository(UserRepository):
             if user_data is None:
                 raise UserWithGivenIdDoesNotExist
 
-            user_token = connection.execute(
+            user_token = self._connection.execute(
                 text(
                     f'select id, token, refresh_token, valid_time, active, created_at '
                     f'from {self._TOKEN_TABLE_NAME} where user_id = :user_id'
