@@ -76,7 +76,7 @@ def register(
             "code": status.HTTP_201_CREATED
         }
     except LoginAlreadyTaken:
-        response.status_code = status.HTTP_400_BAD_REQUEST
+        response.status_code = status.HTTP_409_CONFLICT
 
         return {
             "message": 'Login is already taken!',
