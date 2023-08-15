@@ -7,16 +7,17 @@ from src.modules.project.domain.entities import Project, ProjectWebhook
 from src.modules.project.domain.value_objects import ProjectId, ProjectWebhookType, ProjectWebhookId, ProjectWebhookUrl
 from src.modules.project.application.dtos import ProjectDTO
 
-engine = create_engine('mysql://organizer-auth:password@organizer-auth-db/organizer_auth')
-connection = engine.connect()
-
 
 class MysqlProjectRepository(ProjectRepository):
     """Project repository implementation"""
     _TABLE_NAME = 'projects'
 
+    def __init__(self):
+        engine = create_engine('mysql://organizer-auth:password@organizer-auth-db/organizer_auth')
+        self._connection = engine.connect()
+
     def get_all(self) -> array:
-        raw_result = connection.execute(
+        raw_result = self._connection.execute(
             text(
                 f'select * from {self._TABLE_NAME}'
             )
@@ -31,7 +32,7 @@ class MysqlProjectRepository(ProjectRepository):
         return result
 
     def store(self, project: Project) -> None:
-        connection.execute(
+        self._connection.execute(
             text(
                 f'insert into {self._TABLE_NAME} (id, name, created_at) values (:id, :name, NOW())'
             ),
@@ -42,7 +43,7 @@ class MysqlProjectRepository(ProjectRepository):
         )
 
     def delete(self, project_id: ProjectId) -> None:
-        connection.execute(
+        self._connection.execute(
             text(
                 f'delete from {self._TABLE_NAME} where id = :id'
             ),
@@ -52,7 +53,7 @@ class MysqlProjectRepository(ProjectRepository):
         )
 
     def update(self, project_id: ProjectId, project_name: str) -> None:
-        connection.execute(
+        self._connection.execute(
             text(
                 f'update {self._TABLE_NAME} set name = :name where id = :id'
             ),
@@ -63,7 +64,7 @@ class MysqlProjectRepository(ProjectRepository):
         )
 
     def exists_by_id(self, project_id: ProjectId) -> bool:
-        result = connection.execute(
+        result = self._connection.execute(
             text(
                 f'select count(*) as count from {self._TABLE_NAME} where id = :project_id'
             ),
@@ -78,8 +79,12 @@ class MysqlProjectRepository(ProjectRepository):
 class MysqlProjectWebhookRepository(ProjectWebhookRepository):
     _TABLE_NAME = 'project_webhooks'
 
+    def __init__(self):
+        engine = create_engine('mysql://organizer-auth:password@organizer-auth-db/organizer_auth')
+        self._connection = engine.connect()
+
     def store(self, webhook: ProjectWebhook) -> None:
-        connection.execute(
+        self._connection.execute(
             text(
                 f'insert into {self._TABLE_NAME} (id, project_id, type, url, active) '
                 f'values (:id, :project_id, :type, :url, :active)'
@@ -94,7 +99,7 @@ class MysqlProjectWebhookRepository(ProjectWebhookRepository):
         )
 
     def get_by_project_id_and_type(self, project_id: ProjectId, webhook_type: ProjectWebhookType) -> ProjectWebhook:
-        raw_data = connection.execute(
+        raw_data = self._connection.execute(
             text(
                 f'select id, project_id, type, url, active from {self._TABLE_NAME} '
                 f'where project_id = :project_id and type = :type'
@@ -104,6 +109,8 @@ class MysqlProjectWebhookRepository(ProjectWebhookRepository):
                 'type': webhook_type.name
             }
         ).fetchone()
+
+        print(raw_data)
 
         return ProjectWebhook.reproduce(
             ProjectWebhookId.from_string(raw_data.id),
