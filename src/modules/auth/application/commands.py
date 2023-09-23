@@ -55,7 +55,7 @@ class RegisterUserCommandHandler(CommandHandler):
             self._event_bus.dispatch(
                 UserRegistered(
                     user_id.value,
-                    '17de0337-f527-41bd-8c87-c035da4304cb'
+                    '90b9e3d6-8b6b-4552-a101-3fbdca5e7615'
                 )
             )
         except UserWithGivenLoginAlreadyExists:

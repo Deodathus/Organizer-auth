@@ -80,7 +80,7 @@ def register(
 
         return {
             "message": 'Login is already taken!',
-            "code": status.HTTP_400_BAD_REQUEST
+            "code": status.HTTP_409_CONFLICT
         }
 
 
