@@ -15,3 +15,9 @@ class UserWithGivenIdDoesNotExist(Exception):
     @staticmethod
     def with_id(user_id: str) -> Exception:
         return UserWithGivenIdDoesNotExist(f'User id: {user_id}')
+
+
+class UserWithGivenTokenDoesNotExist(Exception):
+    @staticmethod
+    def with_id(token: str) -> Exception:
+        return UserWithGivenIdDoesNotExist(f'Token: {token}')

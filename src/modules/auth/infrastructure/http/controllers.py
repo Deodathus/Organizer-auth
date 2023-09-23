@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Request
 from dependency_injector.wiring import inject, Provide
 from fastapi import Response
 
@@ -9,7 +9,7 @@ from src.modules.shared.application.messenger import CommandBus, QueryBus
 from src.modules.auth.application.commands import RegisterUser
 from src.modules.auth.application.dtos import CreateUser, UserToLogin
 from ...application.exceptions import InvalidCredentials, LoginAlreadyTaken, UserDoesNotExist
-from ...application.queries import FetchTokenByCredentials, FetchUserById
+from ...application.queries import FetchTokenByCredentials, FetchUserById, FetchUserByToken
 
 router = APIRouter()
 
@@ -67,7 +67,8 @@ def register(
                     register_data.login,
                     register_data.email,
                     register_data.password
-                )
+                ),
+                register_data.project_id
             )
         )
 
@@ -106,3 +107,34 @@ def fetch_user_by_id(
             "code": status.HTTP_404_NOT_FOUND
         }
 
+
+@router.get('/user')
+@inject
+def fetch_user_by_id(
+        request: Request,
+        response: Response,
+        query_bus: QueryBus = Depends(Provide[ApplicationContainer.auth.query_bus])
+) -> dict:
+    token = request.headers.get('X-Auth-Token')
+    if token is None:
+        response.status_code = status.HTTP_403_FORBIDDEN
+
+        return {
+            "message": "Access denied!",
+            "code": status.HTTP_403_FORBIDDEN
+        }
+
+    try:
+        user_dto = query_bus.handle(FetchUserByToken(token))
+
+        return {
+            "message": user_dto,
+            "code": status.HTTP_200_OK
+        }
+    except UserDoesNotExist:
+        response.status_code = status.HTTP_404_NOT_FOUND
+
+        return {
+            "message": 'User does not exist!',
+            "code": status.HTTP_404_NOT_FOUND
+        }

@@ -12,11 +12,15 @@ from src.modules.auth.domain.value_objects import Email, Password, Login, UserId
 
 
 class RegisterUser(Command):
-    def __init__(self, user: CreateUser):
+    def __init__(self, user: CreateUser, project_id: str):
         self._user = user
+        self._project_id = project_id
 
     def get_user(self) -> CreateUser:
         return self._user
+
+    def get_project_id(self) -> str:
+        return self._project_id
 
 
 class RegisterUserCommandHandler(CommandHandler):
@@ -55,7 +59,7 @@ class RegisterUserCommandHandler(CommandHandler):
             self._event_bus.dispatch(
                 UserRegistered(
                     user_id.value,
-                    '90b9e3d6-8b6b-4552-a101-3fbdca5e7615'
+                    command.get_project_id()
                 )
             )
         except UserWithGivenLoginAlreadyExists:

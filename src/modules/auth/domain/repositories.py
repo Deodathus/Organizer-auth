@@ -1,6 +1,6 @@
 
 from .entities import User, Token
-from .value_objects import UserCredentials, Login, UserId
+from .value_objects import UserCredentials, Login, UserId, TokenValue
 
 
 class UserRepository(object):
@@ -18,5 +18,8 @@ class UserRepository(object):
         pass
 
     def fetch_by_id(self, user_id: UserId) -> User:
+        pass
+
+    def fetch_by_token(self, token: TokenValue) -> User:
         pass
 

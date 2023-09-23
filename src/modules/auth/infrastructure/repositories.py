@@ -1,7 +1,7 @@
 from sqlalchemy.exc import NoResultFound, IntegrityError
 
 from src.modules.auth.domain.exceptions import UserWithGivenCredentialsDoesNotExist, UserWithGivenLoginAlreadyExists, \
-    UserWithGivenIdDoesNotExist
+    UserWithGivenIdDoesNotExist, UserWithGivenTokenDoesNotExist
 from src.modules.auth.domain.repositories import UserRepository
 from src.modules.auth.domain.entities import User, Token
 from sqlalchemy import create_engine, text
@@ -142,6 +142,50 @@ class MysqlUserRepository(UserRepository):
                 Token.reproduce(
                     TokenId.from_string(user_token.id),
                     user_id,
+                    TokenValue(user_token.token),
+                    RefreshTokenValue(user_token.refresh_token),
+                    user_token.valid_time,
+                    user_token.active,
+                    user_token.created_at
+                )
+            )
+        except NoResultFound:
+            raise UserWithGivenIdDoesNotExist
+
+    def fetch_by_token(self, token: TokenValue) -> User:
+        try:
+            user_token = self._connection.execute(
+                text(
+                    f'select id, user_id, token, refresh_token, valid_time, active, created_at '
+                    f'from {self._TOKEN_TABLE_NAME} where token = :token'
+                ),
+                {
+                    'token': token.get_token_value()
+                }
+            ).fetchone()
+
+            if user_token is None:
+                raise UserWithGivenTokenDoesNotExist
+
+            user_data = self._connection.execute(
+                text(
+                    f'select id, login, email, status from {self._TABLE_NAME} where id = :id and status = :status'
+                ),
+                {
+                    'id': user_token.user_id,
+                    'status': UserStatus.ACTIVE.value
+                }
+            ).fetchone()
+
+            return User.reproduce(
+                user_data.id,
+                Login(user_data.login),
+                Email(user_data.email),
+                DummyPassword(),
+                UserStatus[user_data.status.upper()],
+                Token.reproduce(
+                    TokenId.from_string(user_token.id),
+                    user_data.id,
                     TokenValue(user_token.token),
                     RefreshTokenValue(user_token.refresh_token),
                     user_token.valid_time,

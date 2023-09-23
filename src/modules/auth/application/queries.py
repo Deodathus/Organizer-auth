@@ -3,9 +3,11 @@ import datetime
 from src.modules.auth.application.dtos import UserToLogin, LoggedUser, UserDTO
 from src.modules.auth.application.exceptions import InvalidCredentials, UserDoesNotExist
 from src.modules.auth.application.services import PasswordHasher
-from src.modules.auth.domain.exceptions import UserWithGivenCredentialsDoesNotExist, UserWithGivenIdDoesNotExist
+from src.modules.auth.domain.entities import Token
+from src.modules.auth.domain.exceptions import UserWithGivenCredentialsDoesNotExist, UserWithGivenIdDoesNotExist, \
+    UserWithGivenTokenDoesNotExist
 from src.modules.auth.domain.repositories import UserRepository
-from src.modules.auth.domain.value_objects import UserCredentials, Password, Login, UserId
+from src.modules.auth.domain.value_objects import UserCredentials, Password, Login, UserId, TokenValue
 from src.modules.shared.application.messenger import Query, QueryHandler
 
 
@@ -71,3 +73,29 @@ class FetchUserByIdHandler(QueryHandler):
             raise UserDoesNotExist
 
 
+class FetchUserByToken(Query):
+    def __init__(self, token: str):
+        self._api_token = token
+
+    def get_api_token(self) -> str:
+        return self._api_token
+
+
+class FetchUserByTokenHandler(QueryHandler):
+    def __init__(self, user_repository: UserRepository):
+        self._user_repository = user_repository
+
+    def handle(self, query: FetchUserByToken) -> UserDTO:
+        try:
+            user = self._user_repository.fetch_by_token(TokenValue(query.get_api_token()))
+
+            return UserDTO(
+                user.get_user_id(),
+                user.get_token().get_token().get_token_value(),
+                user.get_token().get_refresh_token().get_token_value(),
+                user.get_token().get_valid_time(),
+                user.get_token().get_created_at(),
+                user.get_email().get_email()
+            )
+        except UserWithGivenTokenDoesNotExist:
+            raise UserDoesNotExist
