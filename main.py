@@ -15,7 +15,8 @@ def create_app() -> FastAPI:
 
     origins = [
         "http://localhost:3002",
-        "http://127.0.0.1:3002"
+        "http://127.0.0.1:3002",
+        "https://auth.lil-develo.com"
     ]
 
     application.add_middleware(
